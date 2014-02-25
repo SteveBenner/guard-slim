@@ -1,19 +1,20 @@
-require "guard"
-require "guard/guard"
-require "guard/watcher"
-require "slim"
-require "fileutils"
+require 'guard'
+require 'guard/guard'
+require 'guard/watcher'
+require 'slim'
+require 'fileutils'
 
 module Guard
   class Slim < Guard
     NullContext = Struct.new(:template)
 
     DEFAULTS = {
-      :all_on_start => false,
-      :input        => "templates",
-      :output       => "public",
-      :context      => nil,
-      :slim_options => {}
+	    :all_on_start   => false,
+	    :input          => 'templates',
+	    :output         => 'public',
+	    :context        => nil,
+	    :convert_to_erb => false,
+	    :slim_options   => { :pretty => false }
     }.freeze
 
     # Initializes a Guard plugin
@@ -25,6 +26,7 @@ module Guard
     #
     def initialize(watchers = [], options = {})
       options = DEFAULTS.merge(options)
+      require 'slim/erb_converter.rb' if options[:convert_to_erb] == true
       super(watchers, options)
     end
 
@@ -57,7 +59,7 @@ module Guard
       content = render(path)
       output_path = output_path(path)
 
-      File.open(output_path, "w") do |file|
+      File.open(output_path, 'w') do |file|
         file.puts(content)
       end
 
@@ -66,7 +68,7 @@ module Guard
 
     def render(input_path)
       template = Template.new(input_path)
-      TemplateRenderer.new(template).render(context, @options[:slim_options])
+      TemplateRenderer.new(template, @options[:convert_to_erb]).render(context, @options[:slim_options])
     end
 
     def output_path(input_path)
@@ -76,12 +78,14 @@ module Guard
       FileUtils.mkpath(dirname) unless File.directory?(dirname)
 
       basename = File.basename(path, '.slim')
-      basename << '.html' if File.extname(basename).empty?
+      if File.extname(basename).empty?
+				basename << (@options[:convert_to_erb] == true ? '.erb' : '.html')
+      end
 
       File.join(dirname, basename)
     end
   end
 end
 
-require "guard/slim/template"
-require "guard/slim/template_renderer"
+require 'guard/slim/template'
+require 'guard/slim/template_renderer'

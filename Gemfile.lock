@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    guard-slim (0.0.1)
+    guard-slim (0.0.2)
       guard (>= 1.0)
       slim
 
