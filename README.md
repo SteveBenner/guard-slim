@@ -40,6 +40,9 @@ The following options can be passed to guard-slim:
 
   :slim_options => {}      # Options for slim engine. e.g {:pretty => true}
                            # Default: {}
+                           
+  :convert_to_erb => true  # Compiles templates into ERB instead of HTML
+                           # Default: false
 ```
 
 ## Sample Guardfile

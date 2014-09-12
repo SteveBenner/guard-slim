@@ -14,7 +14,7 @@ module Guard
 	    :output         => 'public',
 	    :context        => nil,
 	    :convert_to_erb => false,
-	    :slim_options   => { :pretty => false }
+	    :slim_options   => {}
     }.freeze
 
     # Initializes a Guard plugin
@@ -26,7 +26,11 @@ module Guard
     #
     def initialize(watchers = [], options = {})
       options = DEFAULTS.merge(options)
-      require 'slim/erb_converter.rb' if options[:convert_to_erb] == true
+      if options[:convert_to_erb]
+	      require 'slim/erb_converter.rb'
+	      # Slim requires the following options to be set in order to properly escape Ruby code
+				options[:slim_options].update({ :pretty => false, :disable_escape => true, :use_html_safe => true })
+      end
       super(watchers, options)
     end
 
